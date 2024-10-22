@@ -4,18 +4,18 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import psycopg2
 from fastapi.staticfiles import StaticFiles
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
 app = FastAPI()
 
-
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:Almaty111@db:5432/lol")
+print(DATABASE_URL)
 def insert_user(username, password_hash):
     try:
         # Подключение к базе данных
-        connection = psycopg2.connect(dbname='lol', user='postgres',
-                        password='Almaty111', host='localhost')
+        connection = psycopg2.connect(DATABASE_URL)
         cursor = connection.cursor()
-
         # SQL-запрос на вставку данных
         insert_query = """
         INSERT INTO users (username, password_hash)
@@ -35,8 +35,7 @@ def insert_user(username, password_hash):
 def check(username, password):
     try:
         # Подключение к базе данных
-        connection = psycopg2.connect(dbname='lol', user='postgres',
-                                      password='Almaty111', host='localhost')
+        connection = psycopg2.connect(DATABASE_URL)
         cursor = connection.cursor()
 
         # SQL-запрос для получения хеша пароля
