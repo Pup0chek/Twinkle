@@ -6,6 +6,43 @@ import psycopg2
 from fastapi.staticfiles import StaticFiles
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+import jwt
+from datetime import datetime, timedelta
+
+SECRET_KEY = "liasuperpuperlolhaha923"  # Задайте свой секретный ключ
+
+def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=1)):
+    """
+    Создает JWT-токен с указанными данными и временем жизни.
+    """
+    to_encode = data.copy()
+    expire = datetime.utcnow() + expires_delta
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
+    return encoded_jwt
+
+def decode_access_token(token: str):
+    """
+    Декодирует JWT-токен и возвращает его данные.
+    """
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        return payload
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+
+
+
+
+
+
+
+
+
+
+
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:Almaty111@db:5432/lol")
 print(DATABASE_URL)
@@ -13,6 +50,7 @@ print(DATABASE_URL)
 class Person(BaseModel):
     name: str
     password: str
+
 
 class Params(BaseModel):
     user_id: int
@@ -62,7 +100,6 @@ def insert_params(user_id, weight_current, weight_future, height, sex, age):
     except Exception as e:
         print(f"Ошибка при добавлении значений: {e}")
         return False
-
 
 def check(username, password):
     try:

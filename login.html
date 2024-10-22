@@ -31,7 +31,10 @@
     });
 
     if (response.ok) {
-        window.location.href = "/congrads";
+        const data = await response.json();
+        localStorage.setItem("access_token", data.access_token);
+        const access_token = localStorage.getItem("access_token");
+        window.location.href = `/congrads?token=${encodeURIComponent(access_token)}`;
     } else {
         // В случае ошибки выводим сообщение в консоль и на страницу
         document.getElementById("message").textContent = "Неверные имя пользователя или пароль";

@@ -28,16 +28,20 @@
         // отправляем запрос
         const response = await fetch("/registration", {
                 method: "POST",
-                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                headers: { "Accept": "application/json", "Content-Type": "application/json", },
                 body: JSON.stringify({ 
                     name: username,
                     password: userpassword
                 })
             });
             if (response.ok) {
-		window.location.href = "/congrads";
+                const data = await response.json();
+                localStorage.setItem("access_token", data.access_token);
+                const access_token = localStorage.getItem("access_token");
+		        window.location.href = `/congrads?token=${encodeURIComponent(access_token)}`;
             }
             else
+                document.getElementById("message").textContent = "Ошибка";
                 console.log(response);
     }
 </script>
