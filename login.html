@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LOGIN</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+     <p>
+        Введите имя: <br /> 
+        <input name="username" id="username" />
+    </p>
+     <p>
+        Введите пароль: <br /> 
+        <input name="userpassword" id="userpassword" />
+    </p>
+    <button onclick="send()">Войти</button>
+<script>
+    async function send() {
+    // Получаем введённые значения
+    const username = document.getElementById("username").value;
+    const userpassword = document.getElementById("userpassword").value;
+
+    // Отправляем запрос
+    const response = await fetch("/login", {
+        method: "POST",
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({
+            name: username,
+            password: userpassword
+        })
+    });
+
+    if (response.ok) {
+        window.location.href = "/congrads";
+    } else {
+        // В случае ошибки выводим сообщение в консоль и на страницу
+        document.getElementById("message").textContent = "Неверные имя пользователя или пароль";
+        console.log("Ошибка при входе:", response);
+    }
+}
+</script>
+
+</body>
+</html>
