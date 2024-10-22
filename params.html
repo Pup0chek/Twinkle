@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Let's get started!</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+     <p>
+        Ваш текущий вес: <br />
+        <input weight_current="weight_current" id="weight_current" />
+    </p>
+     <p>
+        Желаемый вес: <br />
+        <input weight_future="weight_future" id="weight_future" />
+    </p>
+     <p>
+        Рост: <br />
+        <input height="height" id="height" />
+    </p>
+     <p>
+        Пол: <br />
+        <input sex="sex" id="sex" />
+    </p>
+     <p>
+        Возраст: <br />
+        <input age="age" id="age" />
+    </p>
+    <button onclick="send()">Рассчитать!</button>
+<script>
+    async function send() {
+    // Получаем введённые значения
+    const user_id = document.getElementById("user_id").value;
+    const weight_current = document.getElementById("weight_current").value;
+    const weight_future = document.getElementById("weight_future").value;
+    const height = document.getElementById("height").value;
+    const sex = document.getElementById("sex").value;
+    const age = document.getElementById("age").value;
+
+    // Отправляем запрос
+    const response = await fetch("/params", {
+        method: "POST",
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({
+            user_id: user_id,
+            weight_current: weight_current,
+            weight_future: weight_future,
+            height: height,
+            sex: sex,
+            age: age
+        })
+    });
+
+    if (response.ok) {
+        window.location.href = "/congrads";
+    } else {
+        // В случае ошибки выводим сообщение в консоль и на страницу
+        document.getElementById("message").textContent = "Неверные имя пользователя или пароль";
+        console.log("Ошибка при входе:", response);
+    }
+}
+</script>
+
+</body>
+</html>
