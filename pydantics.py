@@ -16,3 +16,6 @@ class Params(BaseModel):
     height: int
     sex: str
     age: int
+
+class Valid(BaseModel):
+    message: str

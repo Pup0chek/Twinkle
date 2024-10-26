@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from pydantic.fields import Annotated
 from werkzeug.security import generate_password_hash
 from work_with_db import insert_user, check, insert_params, Token
-from pydantics import Person, Params, TokenAuth
+from pydantics import Person, Params, TokenAuth, Valid
 app = FastAPI()
 
 
@@ -43,10 +43,16 @@ def post_login(person: Annotated[Person, Depends()]) -> TokenAuth:
 @app.get("/congrads")
 def get_congrads(token: str):
     user_data = Token.decode_access_token(token)
+    valid = Valid(message="True")
     if not user_data:
         raise HTTPException(status_code=401, detail="Невалидный или просроченный токен")
-    return user_data
-    #return FileResponse('congrads.html')
+        valid.message = "False"
+    if valid:
+        return FileResponse('congrads.html')
+
+# @app.get("/congradss")
+# def get_congrads(token: str):
+#     return FileResponse('congrads.html')
 
 @app.get("/params")
 def get_params(params: Params):
