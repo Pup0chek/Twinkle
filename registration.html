@@ -26,12 +26,11 @@
         const userpassword = document.getElementById("userpassword").value;
  
         // отправляем запрос
-        const response = await fetch("/registration", {
+        const response = await fetch(`/registration?name=${username}&password=${userpassword}`, {
                 method: "POST",
                 headers: { "Accept": "application/json", "Content-Type": "application/json", },
                 body: JSON.stringify({ 
-                    name: username,
-                    password: userpassword
+
                 })
             });
             if (response.ok) {

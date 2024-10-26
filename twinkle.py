@@ -1,10 +1,11 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.params import Depends
 from fastapi.responses import HTMLResponse
 from fastapi.responses import FileResponse
+from pydantic.fields import Annotated
 from werkzeug.security import generate_password_hash
-from work_with_db import Person, insert_user, check, Params, insert_params, create_access_token, decode_access_token
-import jwt
-from datetime import datetime, timedelta
+from work_with_db import insert_user, check, insert_params, Token
+from pydantics import Person, Params, TokenAuth
 app = FastAPI()
 
 
@@ -18,12 +19,11 @@ def get_registration():
     return FileResponse('registration.html')
 
 @app.post("/registration")
-def post_registration(person: Person):
+def post_registration(person: Annotated[Person, Depends()]) -> TokenAuth:
     hashs=generate_password_hash(person.password)
     if insert_user(person.name, hashs):
-        # Генерируем JWT-токен для пользователя
-        access_token = create_access_token(data={"username": person.name})
-        return {"access_token": access_token, "token_type": "bearer"}
+        access_token = Token.create_access_token(data={"username": person.name})
+        return access_token
     else:
         raise HTTPException(status_code=400, detail="Ошибка при добавлении пользователя")
 
@@ -32,20 +32,20 @@ def get_login():
     return FileResponse("login.html")
 
 @app.post("/login")
-def post_login(person: Person):
+def post_login(person: Annotated[Person, Depends()]) -> TokenAuth:
     if check(person.name, person.password):
         # Генерируем JWT-токен для пользователя
-        access_token = create_access_token(data={"username": person.name})
-        return {"access_token": access_token, "token_type": "bearer"}
+        access_token = Token.create_access_token(data={"username": person.name})
+        return access_token
     else:
         raise HTTPException(status_code=400, detail="Ошибка при аутентификации")
 
 @app.get("/congrads")
 def get_congrads(token: str):
-    user_data = decode_access_token(token)
+    user_data = Token.decode_access_token(token)
     if not user_data:
         raise HTTPException(status_code=401, detail="Невалидный или просроченный токен")
-    return {"message": "Добро пожаловать!", "user_data": user_data}
+    return user_data
     #return FileResponse('congrads.html')
 
 @app.get("/params")

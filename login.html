@@ -21,12 +21,11 @@
     const userpassword = document.getElementById("userpassword").value;
 
     // Отправляем запрос
-    const response = await fetch("/login", {
+    const response = await fetch(`/login?name=${username}&password=${userpassword}`, {
         method: "POST",
         headers: { "Accept": "application/json", "Content-Type": "application/json" },
         body: JSON.stringify({
-            name: username,
-            password: userpassword
+
         })
     });
 
