@@ -71,9 +71,17 @@ def insert_params(user_id, weight_current, weight_future, height, sex, age):
         connection = psycopg2.connect(DATABASE_URL)
         cursor = connection.cursor()
 
+        # Вставить или обновить запись
         query = """
             INSERT INTO params (user_id, weight_current, weight_future, height, sex, age)
             VALUES (%s, %s, %s, %s, %s, %s)
+            ON CONFLICT (user_id) 
+            DO UPDATE SET 
+                weight_current = EXCLUDED.weight_current,
+                weight_future = EXCLUDED.weight_future,
+                height = EXCLUDED.height,
+                sex = EXCLUDED.sex,
+                age = EXCLUDED.age
             """
         cursor.execute(query, (user_id, weight_current, weight_future, height, sex, age))
         connection.commit()
@@ -82,7 +90,7 @@ def insert_params(user_id, weight_current, weight_future, height, sex, age):
         connection.close()
         return True
     except Exception as e:
-        print(f"Ошибка при добавлении значений: {e}")
+        print(f"Ошибка при добавлении или обновлении значений: {e}")
         return False
 
 def check(username, password):
