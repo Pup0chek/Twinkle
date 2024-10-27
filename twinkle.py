@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.params import Depends
 from fastapi.responses import HTMLResponse
 from fastapi.responses import FileResponse
@@ -16,7 +16,7 @@ def get_root():
 
 @app.get("/registration")
 def get_registration():
-    return FileResponse('registration.html')
+    return FileResponse('venv/pages/registration.html')
 
 @app.post("/registration")
 def post_registration(person: Annotated[Person, Depends()]) -> TokenAuth:
@@ -29,7 +29,7 @@ def post_registration(person: Annotated[Person, Depends()]) -> TokenAuth:
 
 @app.get("/login")
 def get_login():
-    return FileResponse("login.html")
+    return FileResponse("venv/pages/login.html")
 
 @app.post("/login")
 def post_login(person: Annotated[Person, Depends()]) -> TokenAuth:
@@ -48,12 +48,15 @@ def get_congrads(token: str):
         raise HTTPException(status_code=401, detail="Невалидный или просроченный токен")
         valid.message = "False"
     if valid:
-        return FileResponse('congrads.html')
-
-# @app.get("/congradss")
-# def get_congrads(token: str):
-#     return FileResponse('congrads.html')
+        return FileResponse('venv/pages/congrads.html')
 
 @app.get("/params")
-def get_params(params: Params):
-    insert_params(**params.dict().values())
+def get_params(token: str= Query(..., description="JWT token for authentication")):
+    user_data = Token.decode_access_token(token)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Невалидный или просроченный токен")
+    return FileResponse('venv/pages/params.html')
+    #insert_params(**params.dict())
+
+@app.post("/params")
+def post_params(params: Annotated[Params, Depends()]):

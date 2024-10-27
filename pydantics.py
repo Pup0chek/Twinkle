@@ -10,6 +10,8 @@ class Person(BaseModel):
     password: str
 
 class Params(BaseModel):
+    access_token: str
+    token_type: str
     user_id: int
     weight_current: int
     weight_future: int
