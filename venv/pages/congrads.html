@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Congrads!</title>
+    <meta charset="utf-8" />
+</head>
+<body>
+     <p>
+        Поздравляю с регистрацией!
+    </p>
+     <button onclick="send()">Составить план диеты</button>
+</body>
+<script>
+    async function send() {
+    // Отправляем запрос
+    const response = await fetch(`/params?token=${encodeURIComponent(localStorage.getItem("access_token"))}`, {
+        method: "GET",
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+    });
+
+    if (response.ok) {
+        // Проверяем, является ли ответ JSON
+        if (response.headers.get("Content-Type")?.includes("application/json")) {
+            const data = await response.json();
+            // Сохраняем новый токен
+            localStorage.setItem("access_token", data.access_token);
+            // Перенаправляем на страницу /params с токеном
+            window.location.href = `/params?token=${encodeURIComponent(data.access_token)}`;
+        } else {
+            // Если ответ не JSON, просто выполняем редирект
+            window.location.href = `/params?token=${encodeURIComponent(localStorage.getItem("access_token"))}`;
+        }
+    } else {
+        // Логируем ошибки в консоль
+        console.log("Ошибка при входе:", response);
+    }
+}
+
+
+</script>
+</html>
