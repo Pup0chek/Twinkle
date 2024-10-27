@@ -1,10 +1,10 @@
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.params import Depends
+from fastapi.params import Depends, Header
 from fastapi.responses import HTMLResponse
 from fastapi.responses import FileResponse
 from pydantic.fields import Annotated
 from werkzeug.security import generate_password_hash
-from work_with_db import insert_user, check, insert_params, Token
+from work_with_db import insert_user, check, insert_params, Token, find_user_id
 from pydantics import Person, Params, TokenAuth, Valid
 app = FastAPI()
 
@@ -16,7 +16,7 @@ def get_root():
 
 @app.get("/registration")
 def get_registration():
-    return FileResponse('venv/pages/registration.html')
+    return FileResponse('pages/registration.html')
 
 @app.post("/registration")
 def post_registration(person: Annotated[Person, Depends()]) -> TokenAuth:
@@ -29,7 +29,7 @@ def post_registration(person: Annotated[Person, Depends()]) -> TokenAuth:
 
 @app.get("/login")
 def get_login():
-    return FileResponse("venv/pages/login.html")
+    return FileResponse("pages/login.html")
 
 @app.post("/login")
 def post_login(person: Annotated[Person, Depends()]) -> TokenAuth:
@@ -48,16 +48,27 @@ def get_congrads(token: str):
         raise HTTPException(status_code=401, detail="Невалидный или просроченный токен")
         valid.message = "False"
     if valid:
-        return FileResponse('venv/pages/congrads.html')
+        return FileResponse('pages/congrads.html')
 
 @app.get("/params")
 def get_params(token: str= Query(..., description="JWT token for authentication")):
     user_data = Token.decode_access_token(token)
     if not user_data:
         raise HTTPException(status_code=401, detail="Невалидный или просроченный токен")
-    return FileResponse('venv/pages/params.html')
-    #insert_params(**params.dict())
+    return FileResponse('pages/params.html')
 
 @app.post("/params")
-def post_params(params: Annotated[Params, Depends()]):
-    pass
+def post_params(params: Params, authorization: str = Header(...)):
+    token_prefix = "Base "
+    if not authorization.startswith(token_prefix):
+        raise HTTPException(status_code=401, detail="Неверный формат токена")
+    token = authorization[len(token_prefix):]
+    user_data = Token.decode_access_token(token)
+    if not user_data or "user_data" not in user_data:
+        raise HTTPException(status_code=401, detail="Невалидный или просроченный токен")
+    username = user_data["user_data"]["username"]
+    print(username)
+    if not username:
+        raise HTTPException(status_code=400, detail="Имя пользователя не найдено в данных токена")
+    insert_params(find_user_id(username), params.weight_current, params.weight_future, params.height, params.sex, params.age)
+    return {"message": "Декодирование токена успешно", "username": username}

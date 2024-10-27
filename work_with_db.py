@@ -29,10 +29,8 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:Almaty111@db:543
 
 def insert_user(username, password_hash):
     try:
-        # Подключение к базе данных
         connection = psycopg2.connect(DATABASE_URL)
         cursor = connection.cursor()
-        # SQL-запрос на вставку данных
         insert_query = """
         INSERT INTO users (username, password_hash)
         VALUES (%s, %s)
@@ -48,21 +46,40 @@ def insert_user(username, password_hash):
         print(f"Ошибка при добавлении пользователя: {e}")
         return False
 
+def find_user_id(user_data: str):
+    try:
+        connection = psycopg2.connect(DATABASE_URL)
+        cursor = connection.cursor()
+
+        query = """
+        SELECT id FROM users WHERE username = %s
+        """
+        cursor.execute(query, (user_data,))
+        result = cursor.fetchone()
+        connection.commit()
+
+        cursor.close()
+        connection.close()
+        return result[0] if result else None
+    except Exception as e:
+        print(f"Ошибка при поиске пользователя: {e}")
+        return None
+
+
 def insert_params(user_id, weight_current, weight_future, height, sex, age):
     try:
         connection = psycopg2.connect(DATABASE_URL)
         cursor = connection.cursor()
 
         query = """
-        INSERT INTO params (user_id, weight_current, weight_future, height, sex, age)
-        VALUES (%s, %s, %s, %s, %s, %s)
-        """
+            INSERT INTO params (user_id, weight_current, weight_future, height, sex, age)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """
         cursor.execute(query, (user_id, weight_current, weight_future, height, sex, age))
         connection.commit()
 
         cursor.close()
         connection.close()
-
         return True
     except Exception as e:
         print(f"Ошибка при добавлении значений: {e}")
@@ -70,11 +87,9 @@ def insert_params(user_id, weight_current, weight_future, height, sex, age):
 
 def check(username, password):
     try:
-        # Подключение к базе данных
         connection = psycopg2.connect(DATABASE_URL)
         cursor = connection.cursor()
 
-        # SQL-запрос для получения хеша пароля
         select_query = """
             SELECT password_hash FROM users WHERE username=%s
             """
@@ -84,13 +99,10 @@ def check(username, password):
         cursor.close()
         connection.close()
 
-        # Если пользователь найден, проверяем пароль
         if result:
             stored_password_hash = result[0]
-            # Проверяем введённый пароль с хешем, сохраненным в базе
             return check_password_hash(stored_password_hash, password)
         else:
-            # Пользователь не найден
             return False
     except Exception as e:
         print(f"Ошибка при проверке пользователя: {e}")

@@ -5,27 +5,75 @@
     <meta charset="utf-8" />
 </head>
 <body>
-     <p>
+    <p>
         Ваш текущий вес: <br />
         <input weight_current="weight_current" id="weight_current" />
     </p>
-     <p>
+    <p>
         Желаемый вес: <br />
         <input weight_future="weight_future" id="weight_future" />
     </p>
-     <p>
+    <p>
         Рост: <br />
         <input height="height" id="height" />
     </p>
-     <p>
+    <p>
         Пол: <br />
         <input sex="sex" id="sex" />
     </p>
-     <p>
+    <p>
         Возраст: <br />
         <input age="age" id="age" />
     </p>
-    <button onclick="send()">Рассчитать!</button>
+    <button id="calculateBtn">Рассчитать!</button>
+    <p id="message"></p>
 
+    <script>
+        document.getElementById("calculateBtn").addEventListener("click", send);
+
+        async function send() {
+            const weight_current = document.getElementById("weight_current").value;
+            const weight_future = document.getElementById("weight_future").value;
+            const height = document.getElementById("height").value;
+            const sex = document.getElementById("sex").value;
+            const age = document.getElementById("age").value;
+
+            // Проверяем, есть ли токен
+            const access_token = localStorage.getItem("access_token");
+            if (!access_token) {
+                document.getElementById("message").textContent = "Токен не найден";
+                console.log("Токен не найден в localStorage");
+                return;
+            }
+            try {
+                const response = await fetch(`/params`, {
+                    method: "POST",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                        "Authorization": `Base ${access_token}`
+                    },
+                    body: JSON.stringify({
+                        "weight_current": weight_current,
+                        "weight_future": weight_future,
+                        "height": height,
+                        "sex": sex,
+                        "age": age
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById("message").textContent = "Данные успешно отправлены!";
+                    const access_token = localStorage.getItem("access_token");
+                    window.location.href = `/params?token=${access_token}`;
+                } else {
+                    console.log("Ошибка при отправке:", response);
+                }
+            } catch (error) {
+                console.error("Ошибка при выполнении запроса:", error);
+            }
+        }
+    </script>
 </body>
 </html>
