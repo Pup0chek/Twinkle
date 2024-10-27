@@ -60,3 +60,4 @@ def get_params(token: str= Query(..., description="JWT token for authentication"
 
 @app.post("/params")
 def post_params(params: Annotated[Params, Depends()]):
+    pass
