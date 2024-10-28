@@ -26,18 +26,15 @@ class UserState(StatesGroup):
     waiting_for_deletion_choice = State()
 
 def get_db_connection():
-    """Устанавливает соединение с базой данных."""
     return psycopg2.connect(DATABASE_URL, options="-c client_encoding=UTF8")
 
 async def send_water_reminder(chat_id: int):
-    """Отправляет напоминание пользователю."""
     try:
         await bot.send_message(chat_id, "Не забудьте выпить воды! 💧")
     except Exception as e:
         logging.error(f"Ошибка при отправке напоминания: {e}")
 
 def schedule_reminders():
-    """Запланировать задачи для отправки напоминаний."""
     with get_db_connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -47,9 +44,7 @@ def schedule_reminders():
             """)
             reminders = cursor.fetchall()
 
-    # Планируем каждое напоминание
     for user_id, chat_id, reminder_time in reminders:
-        # Используем reminder_time напрямую, так как он уже типа time
         scheduler.add_job(
             send_water_reminder,
             trigger='cron',
@@ -73,24 +68,20 @@ async def process_login(message: Message, state: FSMContext) -> None:
     chat_id = message.chat.id
 
     try:
-        # Проверяем наличие пользователя в базе данных
         with get_db_connection() as connection:
             with connection.cursor() as cursor:
                 cursor.execute("SELECT id FROM users WHERE username = %s", (login,))
                 user = cursor.fetchone()
 
         if user:
-            # Сохраняем user_id во временное хранилище состояния
             await state.update_data(user_id=user[0])
 
-            # Проверяем, есть ли уже запись с данным user_id в таблице water_intake
             with get_db_connection() as connection:
                 with connection.cursor() as cursor:
                     cursor.execute("SELECT id FROM water_intake WHERE user_id = %s", (user[0],))
                     record = cursor.fetchone()
 
                     if record:
-                        # Если запись существует, обновляем chat_id
                         cursor.execute(
                             """
                             UPDATE water_intake
@@ -100,7 +91,6 @@ async def process_login(message: Message, state: FSMContext) -> None:
                             (chat_id, user[0])
                         )
                     else:
-                        # Если записи нет, добавляем новую запись
                         cursor.execute(
                             """
                             INSERT INTO water_intake (user_id, chat_id, is_active)
@@ -110,12 +100,10 @@ async def process_login(message: Message, state: FSMContext) -> None:
                         )
                     connection.commit()
 
-            # Переход к выбору действия
             await message.answer(
                 f"Добро пожаловать, {login}! Пожалуйста, выберите действие:\n1. Добавить напоминание\n2. Удалить напоминание\n3. Изменить напоминание")
             await state.set_state(UserState.waiting_for_action_choice)
         else:
-            # Пользователь не найден
             await message.answer("Пользователь с таким логином не найден. Попробуйте еще раз.")
     except psycopg2.Error as e:
         logging.error(f"Ошибка при подключении к базе данных: {e}")
@@ -131,11 +119,9 @@ async def handle_action_choice(message: Message, state: FSMContext) -> None:
         await message.answer("Введите время для напоминания в формате ЧЧ:ММ.")
         await state.set_state(UserState.waiting_for_reminder_time)
     elif choice == "2":
-        # Получение user_id из состояния
         data = await state.get_data()
         user_id = data.get("user_id")
 
-        # Получение всех временных точек для удаления
         try:
             with get_db_connection() as connection:
                 with connection.cursor() as cursor:
@@ -148,7 +134,6 @@ async def handle_action_choice(message: Message, state: FSMContext) -> None:
                     )
                     reminders = cursor.fetchall()
 
-            # Проверка наличия напоминаний
             if reminders:
                 reminder_times = [f"- {reminder[0]}" for reminder in reminders]
                 reminder_list = "\n".join(reminder_times)
@@ -171,16 +156,13 @@ async def process_reminder_time(message: Message, state: FSMContext) -> None:
     reminder_time = message.text
     chat_id = message.chat.id
     try:
-        # Проверка формата времени
         hours, minutes = map(int, reminder_time.split(":"))
         if not (0 <= hours < 24 and 0 <= minutes < 60):
             raise ValueError("Неверный формат времени")
 
-        # Получаем user_id из состояния
         data = await state.get_data()
         user_id = data.get("user_id")
 
-        # Добавление времени напоминания и chat_id в таблицу water_intake
         with get_db_connection() as connection:
             with connection.cursor() as cursor:
                 cursor.execute(
@@ -191,10 +173,8 @@ async def process_reminder_time(message: Message, state: FSMContext) -> None:
                     (user_id, reminder_time, chat_id)
                 )
 
-        # Перепланировать задачи после добавления времени
         schedule_reminders()
 
-        # Подтверждение установки времени напоминания
         await message.answer(f"Напоминание будет приходить каждый день в {reminder_time}.", reply_markup=ReplyKeyboardRemove())
         await state.clear()
     except ValueError:
@@ -207,13 +187,10 @@ async def process_reminder_time(message: Message, state: FSMContext) -> None:
         await message.answer("Произошла непредвиденная ошибка. Попробуйте позже.")
 
 async def main() -> None:
-    # Запуск планировщика
     scheduler.start()
 
-    # Планируем напоминания при запуске
     schedule_reminders()
 
-    # Запуск поллинга бота
     await dp.start_polling(bot)
 
 if __name__ == "__main__":

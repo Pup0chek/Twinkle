@@ -8,10 +8,11 @@
      <p>
         Поздравляю с регистрацией!
     </p>
-     <button onclick="send()">Составить план диеты</button>
+     <button onclick="send1()">Составить план диеты</button>
+     <button onclick="send2()">Составить план тренировок</button>
 </body>
 <script>
-    async function send() {
+    async function send1() {
     // Отправляем запрос
     const response = await fetch(`/params?token=${encodeURIComponent(localStorage.getItem("access_token"))}`, {
         method: "GET",
@@ -36,6 +37,29 @@
     }
 }
 
+    async function send2() {
+        // Отправляем запрос
+        const response = await fetch(`/train`, {
+            method: "GET",
+            headers: { "Accept": "application/json", "Content-Type": "application/json", "Authorization":  `Base ${encodeURIComponent(localStorage.getItem("access_token"))}`},
+        });
 
+        if (response.ok) {
+            // Проверяем, является ли ответ JSON
+            if (response.headers.get("Content-Type")?.includes("application/json")) {
+                const data = await response.json();
+                // Сохраняем новый токен
+                localStorage.setItem("access_token", data.access_token);
+                // Перенаправляем на страницу /params с токеном
+                window.location.href = `/congrads?token=${encodeURIComponent(data.access_token)}`;
+            } else {
+                // Если ответ не JSON, просто выполняем редирект
+                window.location.href = `/congrads?token=${encodeURIComponent(localStorage.getItem("access_token"))}`;
+            }
+        } else {
+            // Логируем ошибки в консоль
+            console.log("Ошибка при входе:", response);
+        }
+    }
 </script>
 </html>

@@ -66,7 +66,7 @@
                     const data = await response.json();
                     document.getElementById("message").textContent = "Данные успешно отправлены!";
                     const access_token = localStorage.getItem("access_token");
-                    window.location.href = `/params?token=${access_token}`;
+                    window.location.href = `/congrads?token=${access_token}`;
                 } else {
                     console.log("Ошибка при отправке:", response);
                 }

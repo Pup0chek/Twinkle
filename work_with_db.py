@@ -1,4 +1,5 @@
 import psycopg2
+from fastapi import HTTPException
 from werkzeug.security import check_password_hash
 import os
 import jwt
@@ -23,6 +24,18 @@ class Token():
             return None
         except jwt.InvalidTokenError:
             return None
+    def check_token(authorization: str):
+        token_prefix = "Base "
+        if not authorization.startswith(token_prefix):
+            raise HTTPException(status_code=401, detail="Неверный формат токена")
+        token = authorization[len(token_prefix):]
+        user_data = Token.decode_access_token(token)
+        if not user_data or "user_data" not in user_data:
+            raise HTTPException(status_code=401, detail="Невалидный или просроченный токен")
+        username = user_data["user_data"]["username"]
+        if not username:
+            raise HTTPException(status_code=400, detail="Имя пользователя не найдено в данных токена")
+        return username
 
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:Almaty111@db:5432/lol")
