@@ -2,6 +2,9 @@ import os
 import psycopg2
 import requests
 from bs4 import BeautifulSoup
+import lxml
+import chardet
+from lxml import html
 
 # Base URL of the exercise catalog
 base_url = 'https://dailyfit.ru/katalog-uprazhnenij/'
@@ -28,10 +31,16 @@ for i in range(1, 31):
         for card in exercise_cards:
             # Extract exercise name and link
             header = card.find('a', class_='header')
-            exercise_name = header.text.strip()
+            header_text = header.text.strip().encode()
+            detected_encoding = chardet.detect(header_text)['encoding']
+            try:
+                exercise_name = html.document_fromstring(header_text.decode(detected_encoding)).text_content()
+            except Exception as e:
+                print(f"Ошибка декодирования для упражнения '{header.text.strip()}': {e}")
+                exercise_name = "Ошибка декодирования имени"
             exercise_link = header['href']
+            print(exercise_name)
 
-            # Fetch individual exercise page
             response = requests.get(exercise_link)
             if response.status_code == 200:
                 exercise_soup = BeautifulSoup(response.content, 'html.parser')
