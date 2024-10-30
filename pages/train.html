@@ -5,25 +5,62 @@
     <title>Train</title>
 </head>
 <body>
-    <select id="age" name="age">
-        <option value="18">18</option>
-        <option value="25">25</option>
-        <option value="30">30</option>
-        <option value="35">35</option>
-        <option value="40">40</option>
+    <select id="difficulty" name="difficulty">
+        <option value="Default">Default</option>
+        <option value="Начинающий">Начинающий</option>
+        <option value="Средний">Средний</option>
+        <option value="Профессионал">Профессионал</option>
+    </select>
+    <select id="muscle_groupp" name="muscle_groupp">
+        <option value="Default">Default</option>
+        <option value="Пресс">Пресс</option>
+        <option value="Трицепсы">Трицепсы</option>
+        <option value="Нижняя часть спины">Нижняя часть спины</option>
+        <option value="Плечи">Плечи</option>
+        <option value="Грудь">Грудь</option>
+        <option value="Квадрицепцы">Квадрицепцы</option>
+        <option value="Трапеции">Трапеции</option>
+        <option value="Бедра">Бедра</option>
+        <option value="Широчайшие мышцы спины">Широчайшие мышцы спины</option>
+        <option value="Средняя часть спины">Средняя часть спины</option>
+        <option value="Икры">Икры</option>
+        <option value="Ягодицы">Ягодицы</option>
+        <option value="Шея">Шея</option>
+        <option value="Предплечья">Предплечья</option>
+        <option value="Аддукторы">Аддукторы</option>
+    </select>
+    <select id="equipment" name="equipment">
+        <option value="Присутствует">Присутствует</option>
+        <option value="Отсутствует">Отсутствует</option>
     </select>
     <button id="calculateBtn">Рассчитать!</button>
     <p id="message"></p>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <h1>Подходящие упражнения</h1>
+    {% if exercises %}
+        <ul>
+            {% for exercise in exercises %}
+                <li>
+                    <strong>id:</strong> {{ exercise.id }}<br>
+                    <strong>Название:</strong> {{ exercise.name }}<br>
+                    <strong>Описание:</strong> {{ exercise.description }}<br>
+                    <strong>Группа мышц:</strong> {{ exercise.muscle_group }}<br>
+                    <strong>Оборудование:</strong> {{ exercise.equipment }}<br>
+                    <strong>Сложность:</strong> {{ exercise.difficulty }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Не найдено подходящих упражнений.</p>
+    {% endif %}
     <script>
         document.getElementById("calculateBtn").addEventListener("click", send);
 
         async function send() {
-            const weight_current = document.getElementById("weight_current").value;
-            const weight_future = document.getElementById("weight_future").value;
-            const height = document.getElementById("height").value;
-            const sex = document.getElementById("sex").value;
-            const age = document.getElementById("age").value;
+            const difficulty = document.getElementById("difficulty").value;
+            const muscle_groupp = document.getElementById("muscle_groupp").value;
+            const equipment = document.getElementById("equipment").value;
 
             // Проверяем, есть ли токен
             const access_token = localStorage.getItem("access_token");
@@ -33,7 +70,7 @@
                 return;
             }
             try {
-                const response = await fetch(`/params`, {
+                const response = await fetch(`/train`, {
                     method: "POST",
                     headers: {
                         "Accept": "application/json",
@@ -41,11 +78,9 @@
                         "Authorization": `Base ${access_token}`
                     },
                     body: JSON.stringify({
-                        "weight_current": weight_current,
-                        "weight_future": weight_future,
-                        "height": height,
-                        "sex": sex,
-                        "age": age
+                        "difficulty": difficulty,
+                        "muscle_groupp": muscle_groupp,
+                        "equipment": equipment
                     })
                 });
 
@@ -53,7 +88,7 @@
                     const data = await response.json();
                     document.getElementById("message").textContent = "Данные успешно отправлены!";
                     const access_token = localStorage.getItem("access_token");
-                    window.location.href = `/congrads?token=${access_token}`;
+                    window.location.href = `/train?token=${access_token}`;
                 } else {
                     console.log("Ошибка при отправке:", response);
                     document.getElementById("message").textContent = "Ошибка при отправке данных.";

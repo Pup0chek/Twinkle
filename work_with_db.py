@@ -106,6 +106,58 @@ def insert_params(user_id, weight_current, weight_future, height, sex, age):
         print(f"Ошибка при добавлении или обновлении значений: {e}")
         return False
 
+
+def select_trains(id, difficulty, muscle_group, equipment):
+    try:
+        connection = psycopg2.connect(DATABASE_URL)
+        cursor = connection.cursor()
+        if difficulty == 'Default' and muscle_group == 'Default':
+            if equipment == 'Отсутствует':
+                query = """
+                    SELECT * FROM exercises WHERE equipment='Отсутствует'
+                    """
+            else:
+                query = """
+                    SELECT * FROM exercises WHERE equipment!='Отсутствует'
+                    """
+        elif difficulty == 'Default' and muscle_group != 'Default':
+            if equipment == 'Отсутствует':
+                query = f"""
+                    SELECT * FROM exercises WHERE equipment='Отсутствует' and muscle_goup={muscle_group}
+                    """
+            else:
+                query = f"""
+                    SELECT * FROM exercises WHERE equipment!='Отсутствует' and muscle_goup={muscle_group}
+                    """
+        elif difficulty != 'Default' and muscle_group == 'Default':
+            if equipment == 'Отсутствует':
+                query = f"""
+                    SELECT * FROM exercises WHERE equipment='Отсутствует' and difficulty={difficulty}
+                    """
+            else:
+                query = f"""
+                    SELECT * FROM exercises WHERE equipment!='Отсутствует'and difficulty={difficulty}
+                    """
+        else:
+            if equipment == 'Отсутствует':
+                query = f"""
+                    SELECT * FROM exercises WHERE equipment='Отсутствует' and difficulty={difficulty} muscle_goup={muscle_group}
+                    """
+            else:
+                query = f"""
+                    SELECT * FROM exercises WHERE equipment!='Отсутствует' and difficulty={difficulty} muscle_goup={muscle_group}
+                    """
+        cursor.fetchall()
+        connection.commit()
+
+        cursor.close()
+        connection.close()
+        return True
+
+    except Exception as e:
+        print(f"Ошибка при выборке значений: {e}")
+        return False
+
 def check(username, password):
     try:
         connection = psycopg2.connect(DATABASE_URL)

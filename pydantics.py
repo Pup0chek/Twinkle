@@ -16,5 +16,10 @@ class Params(BaseModel):
     sex: str
     age: int
 
+class Trains(BaseModel):
+    difficulty: str
+    muscle_groupp: str
+    equipment: str
+
 class Valid(BaseModel):
     message: str

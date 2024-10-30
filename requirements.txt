@@ -6,3 +6,5 @@ sqlalchemy==2.0.21
 python-dotenv==1.0.0
 pytest==7.4.2
 pyjwt==2.8.0
+pygments
+requests

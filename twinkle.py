@@ -3,9 +3,12 @@ from fastapi.params import Depends, Header
 from fastapi.responses import HTMLResponse
 from fastapi.responses import FileResponse
 from pydantic.fields import Annotated
+from pygments.lexers import templates
+from requests import request
 from werkzeug.security import generate_password_hash
-from work_with_db import insert_user, check, insert_params, Token, find_user_id
-from pydantics import Person, Params, TokenAuth, Valid
+from work_with_db import insert_user, check, insert_params, Token, find_user_id, select_trains
+from pydantics import Person, Params, TokenAuth, Valid, Trains
+
 app = FastAPI()
 
 
@@ -70,3 +73,15 @@ def get_train(token: str= Query(..., description="JWT token for authentication")
     if not user_data:
         raise HTTPException(status_code=401, detail="Невалидный или просроченный токен")
     return FileResponse('pages/train.html')
+
+@app.post("/train")
+def post_train(trains: Trains, authorization: str = Header(...)):
+    if Token.check_token(authorization):
+        user_id = find_user_id(Token.check_token(authorization))
+        result= select_trains(find_user_id(Token.check_token(authorization)), trains.difficulty, trains.muscle_groupp, trains.equipment)
+        if result:  # Если результат не пустой
+            return templates.TemplateResponse("train.html", {"request": request, "exercises": result})
+        else:
+            return {"message": "Не удалось найти подходящие упражнения."}
+    else:
+            return {"message": "Неавторизованный доступ"}
