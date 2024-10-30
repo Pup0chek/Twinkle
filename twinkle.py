@@ -65,6 +65,8 @@ def post_params(params: Params, authorization: str = Header(...)):
         return {"message": "Декодирование токена успешно", "username": Token.check_token(authorization)}
 
 @app.get("/train")
-def get_train(authorization: str = Header(...)):
-    if Token.check_token(authorization):
-        pass
+def get_train(token: str= Query(..., description="JWT token for authentication")):
+    user_data = Token.decode_access_token(token)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Невалидный или просроченный токен")
+    return FileResponse('pages/train.html')

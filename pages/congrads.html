@@ -12,54 +12,46 @@
      <button onclick="send2()">Составить план тренировок</button>
 </body>
 <script>
-    async function send1() {
-    // Отправляем запрос
-    const response = await fetch(`/params?token=${encodeURIComponent(localStorage.getItem("access_token"))}`, {
+    async function sendRequest(endpoint) {
+    // Формируем запрос
+    const response = await fetch(`${endpoint}?token=${encodeURIComponent(localStorage.getItem("access_token"))}`, {
         method: "GET",
         headers: { "Accept": "application/json", "Content-Type": "application/json" },
     });
 
+    // Проверяем, успешен ли ответ
     if (response.ok) {
         // Проверяем, является ли ответ JSON
         if (response.headers.get("Content-Type")?.includes("application/json")) {
             const data = await response.json();
-            // Сохраняем новый токен
-            localStorage.setItem("access_token", data.access_token);
-            // Перенаправляем на страницу /params с токеном
-            window.location.href = `/params?token=${encodeURIComponent(data.access_token)}`;
+            // Сохраняем новый токен, если он присутствует в ответе
+            if (data.access_token) {
+                localStorage.setItem("access_token", data.access_token);
+            }
+            // Перенаправляем на страницу в зависимости от запроса
+            if (endpoint === "/params") {
+                window.location.href = `/params?token=${encodeURIComponent(data.access_token || localStorage.getItem("access_token"))}`;
+            } else if (endpoint === "/train") {
+                window.location.href = `/train?token=${encodeURIComponent(data.access_token || localStorage.getItem("access_token"))}`;
+            }
         } else {
-            // Если ответ не JSON, просто выполняем редирект
-            window.location.href = `/params?token=${encodeURIComponent(localStorage.getItem("access_token"))}`;
+            // Если ответ не JSON, выполняем редирект с токеном из localStorage
+            window.location.href = `${endpoint}?token=${encodeURIComponent(localStorage.getItem("access_token"))}`;
         }
     } else {
         // Логируем ошибки в консоль
-        console.log("Ошибка при входе:", response);
+        console.log(`Ошибка при запросе к ${endpoint}:`, response);
     }
 }
 
-    async function send2() {
-        // Отправляем запрос
-        const response = await fetch(`/train`, {
-            method: "GET",
-            headers: { "Accept": "application/json", "Content-Type": "application/json", "Authorization":  `Base ${encodeURIComponent(localStorage.getItem("access_token"))}`},
-        });
+// Функции send1 и send2, которые вызывают sendRequest с нужным endpoint
+function send1() {
+    sendRequest("/params");
+}
 
-        if (response.ok) {
-            // Проверяем, является ли ответ JSON
-            if (response.headers.get("Content-Type")?.includes("application/json")) {
-                const data = await response.json();
-                // Сохраняем новый токен
-                localStorage.setItem("access_token", data.access_token);
-                // Перенаправляем на страницу /params с токеном
-                window.location.href = `/congrads?token=${encodeURIComponent(data.access_token)}`;
-            } else {
-                // Если ответ не JSON, просто выполняем редирект
-                window.location.href = `/congrads?token=${encodeURIComponent(localStorage.getItem("access_token"))}`;
-            }
-        } else {
-            // Логируем ошибки в консоль
-            console.log("Ошибка при входе:", response);
-        }
-    }
+function send2() {
+    sendRequest("/train");
+}
+
 </script>
 </html>

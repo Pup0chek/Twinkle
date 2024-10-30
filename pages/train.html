@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Train</title>
+</head>
+<body>
+    <select id="age" name="age">
+        <option value="18">18</option>
+        <option value="25">25</option>
+        <option value="30">30</option>
+        <option value="35">35</option>
+        <option value="40">40</option>
+    </select>
+    <button id="calculateBtn">Рассчитать!</button>
+    <p id="message"></p>
+
+    <script>
+        document.getElementById("calculateBtn").addEventListener("click", send);
+
+        async function send() {
+            const weight_current = document.getElementById("weight_current").value;
+            const weight_future = document.getElementById("weight_future").value;
+            const height = document.getElementById("height").value;
+            const sex = document.getElementById("sex").value;
+            const age = document.getElementById("age").value;
+
+            // Проверяем, есть ли токен
+            const access_token = localStorage.getItem("access_token");
+            if (!access_token) {
+                document.getElementById("message").textContent = "Токен не найден";
+                console.log("Токен не найден в localStorage");
+                return;
+            }
+            try {
+                const response = await fetch(`/params`, {
+                    method: "POST",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                        "Authorization": `Base ${access_token}`
+                    },
+                    body: JSON.stringify({
+                        "weight_current": weight_current,
+                        "weight_future": weight_future,
+                        "height": height,
+                        "sex": sex,
+                        "age": age
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById("message").textContent = "Данные успешно отправлены!";
+                    const access_token = localStorage.getItem("access_token");
+                    window.location.href = `/congrads?token=${access_token}`;
+                } else {
+                    console.log("Ошибка при отправке:", response);
+                    document.getElementById("message").textContent = "Ошибка при отправке данных.";
+                }
+            } catch (error) {
+                console.error("Ошибка при выполнении запроса:", error);
+                document.getElementById("message").textContent = "Ошибка при выполнении запроса.";
+            }
+        }
+    </script>
+</body>
+
+</html>
