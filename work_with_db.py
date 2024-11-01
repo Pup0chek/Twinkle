@@ -123,40 +123,41 @@ def select_trains(id, difficulty, muscle_group, equipment):
         elif difficulty == 'Default' and muscle_group != 'Default':
             if equipment == 'Отсутствует':
                 query = f"""
-                    SELECT * FROM exercises WHERE equipment='Отсутствует' and muscle_goup={muscle_group}
+                    SELECT * FROM exercises WHERE equipment='Отсутствует' and muscle_group='{muscle_group}'
                     """
             else:
                 query = f"""
-                    SELECT * FROM exercises WHERE equipment!='Отсутствует' and muscle_goup={muscle_group}
+                    SELECT * FROM exercises WHERE equipment!='Отсутствует' and muscle_group='{muscle_group}'
                     """
         elif difficulty != 'Default' and muscle_group == 'Default':
             if equipment == 'Отсутствует':
                 query = f"""
-                    SELECT * FROM exercises WHERE equipment='Отсутствует' and difficulty={difficulty}
+                    SELECT * FROM exercises WHERE equipment='Отсутствует' and difficulty='{difficulty}'
                     """
             else:
                 query = f"""
-                    SELECT * FROM exercises WHERE equipment!='Отсутствует'and difficulty={difficulty}
+                    SELECT * FROM exercises WHERE equipment!='Отсутствует'and difficulty='{difficulty}'
                     """
         else:
             if equipment == 'Отсутствует':
                 query = f"""
-                    SELECT * FROM exercises WHERE equipment='Отсутствует' and difficulty={difficulty} muscle_goup={muscle_group}
+                    SELECT * FROM exercises WHERE equipment='Отсутствует' and difficulty='{difficulty}' and muscle_group='{muscle_group}'
                     """
             else:
                 query = f"""
-                    SELECT * FROM exercises WHERE equipment!='Отсутствует' and difficulty={difficulty} muscle_goup={muscle_group}
+                    SELECT * FROM exercises WHERE equipment!='Отсутствует' and difficulty='{difficulty}' and muscle_group='{muscle_group}'
                     """
-        cursor.fetchall()
+        cursor.execute(query)
+        result = cursor.fetchall()
         connection.commit()
 
         cursor.close()
         connection.close()
-        return True
+        return result
 
     except Exception as e:
         print(f"Ошибка при выборке значений: {e}")
-        return False
+        return None
 
 def check(username, password):
     try:
@@ -180,4 +181,3 @@ def check(username, password):
     except Exception as e:
         print(f"Ошибка при проверке пользователя: {e}")
         return False
-

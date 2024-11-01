@@ -3,14 +3,16 @@ from fastapi.params import Depends, Header
 from fastapi.responses import HTMLResponse
 from fastapi.responses import FileResponse
 from pydantic.fields import Annotated
-from pygments.lexers import templates
+from starlette.templating import Jinja2Templates
+from starlette.requests import Request
+templates = Jinja2Templates(directory="pages")
+#from pygments.lexers import templates
 from requests import request
 from werkzeug.security import generate_password_hash
 from work_with_db import insert_user, check, insert_params, Token, find_user_id, select_trains
 from pydantics import Person, Params, TokenAuth, Valid, Trains
 
 app = FastAPI()
-
 
 @app.get("/")
 def get_root():
@@ -75,7 +77,7 @@ def get_train(token: str= Query(..., description="JWT token for authentication")
     return FileResponse('pages/train.html')
 
 @app.post("/train")
-def post_train(trains: Trains, authorization: str = Header(...)):
+def post_train(request: Request, trains: Trains, authorization: str = Header(...)):
     if Token.check_token(authorization):
         user_id = find_user_id(Token.check_token(authorization))
         result= select_trains(find_user_id(Token.check_token(authorization)), trains.difficulty, trains.muscle_groupp, trains.equipment)
