@@ -4,7 +4,7 @@ from werkzeug.security import check_password_hash
 import os
 import jwt
 from datetime import datetime, timedelta
-from pydantics import Person, TokenAuth, Params
+from src.pydantics import TokenAuth
 
 SECRET_KEY = "liasuperpuperlolhaha923"
 

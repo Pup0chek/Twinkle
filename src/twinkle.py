@@ -7,10 +7,9 @@ from starlette.templating import Jinja2Templates
 from starlette.requests import Request
 templates = Jinja2Templates(directory="pages")
 #from pygments.lexers import templates
-from requests import request
 from werkzeug.security import generate_password_hash
-from work_with_db import insert_user, check, insert_params, Token, find_user_id, select_trains
-from pydantics import Person, Params, TokenAuth, Valid, Trains
+from src.work_with_db import insert_user, check, insert_params, Token, find_user_id, select_trains
+from src.pydantics import Person, Params, TokenAuth, Valid, Trains
 
 app = FastAPI()
 

@@ -16,4 +16,4 @@ RUN pip install "uvicorn[standard]"
 COPY . .
 
 # Указываем команду, которая будет выполнена при запуске контейнера
-CMD ["uvicorn", "twinkle:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "src.twinkle:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
