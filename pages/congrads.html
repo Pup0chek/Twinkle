@@ -29,7 +29,7 @@
                 localStorage.setItem("access_token", data.access_token);
             }
             // Перенаправляем на страницу в зависимости от запроса
-            if (endpoint === "/params") {
+            if (endpoint === "/params/") {
                 window.location.href = `/params?token=${encodeURIComponent(data.access_token || localStorage.getItem("access_token"))}`;
             } else if (endpoint === "/train") {
                 window.location.href = `/train?token=${encodeURIComponent(data.access_token || localStorage.getItem("access_token"))}`;
@@ -46,7 +46,7 @@
 
 // Функции send1 и send2, которые вызывают sendRequest с нужным endpoint
 function send1() {
-    sendRequest("/params");
+    sendRequest("/params/");
 }
 
 function send2() {
