@@ -7,26 +7,29 @@
 <body>
     <p>
         Ваш текущий вес: <br />
-        <input weight_current="weight_current" id="weight_current" />
+        <input type="number" id="weight_current" />
     </p>
     <p>
         Желаемый вес: <br />
-        <input weight_future="weight_future" id="weight_future" />
+        <input type="number" id="weight_future" />
     </p>
     <p>
         Рост: <br />
-        <input height="height" id="height" />
+        <input type="number" id="height" />
     </p>
     <p>
         Пол: <br />
-        <input sex="sex" id="sex" />
+        <input type="text" id="sex" />
     </p>
     <p>
         Возраст: <br />
-        <input age="age" id="age" />
+        <input type="number" id="age" />
     </p>
     <button id="calculateBtn">Рассчитать!</button>
     <p id="message"></p>
+    <p>Основной обмен (BMR): <span id="bmr"></span></p>
+    <p>Ежедневные калории: <span id="daily_calories"></span></p>
+    <p>Целевые калории: <span id="target_calories"></span></p>
 
     <script>
         document.getElementById("calculateBtn").addEventListener("click", send);
@@ -45,6 +48,7 @@
                 console.log("Токен не найден в localStorage");
                 return;
             }
+
             try {
                 const response = await fetch(`/params/`, {
                     method: "POST",
@@ -65,12 +69,18 @@
                 if (response.ok) {
                     const data = await response.json();
                     document.getElementById("message").textContent = "Данные успешно отправлены!";
-                    const access_token = localStorage.getItem("access_token");
-                    window.location.href = `/congrads?token=${access_token}`;
+
+                    // Отображаем полученные данные
+                    document.getElementById("bmr").textContent = data.message.bmr;
+                    document.getElementById("daily_calories").textContent = data.message.daily_calories;
+                    document.getElementById("target_calories").textContent = data.message.target_calories;
+
                 } else {
+                    document.getElementById("message").textContent = "Ошибка при отправке данных";
                     console.log("Ошибка при отправке:", response);
                 }
             } catch (error) {
+                document.getElementById("message").textContent = "Ошибка при выполнении запроса";
                 console.error("Ошибка при выполнении запроса:", error);
             }
         }
