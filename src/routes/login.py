@@ -13,6 +13,7 @@ login_router = APIRouter(prefix="/login", tags=['Login'])
 
 @login_router.get("/")
 def get_login():
+    #return {"massage": "login.get"}
     return FileResponse("pages/login.html")
 
 @login_router.post("/")

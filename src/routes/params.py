@@ -1,16 +1,12 @@
 from fastapi import APIRouter
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.params import Depends, Header
-from fastapi.responses import HTMLResponse
+from fastapi import HTTPException, Query
+from fastapi.params import Header
 from fastapi.responses import FileResponse
-from pydantic.fields import Annotated
 from starlette.templating import Jinja2Templates
-from starlette.requests import Request
 templates = Jinja2Templates(directory="pages")
-#from pygments.lexers import templates
-from werkzeug.security import generate_password_hash
-from src.work_with_db import insert_user, check, insert_params, Token, find_user_id, select_trains
-from src.pydantics import Person, Params, TokenAuth, Valid, Trains
+from src.work_with_db import insert_params, Token, find_user_id
+from src.pydantics import Params
+from src.diet import calculate_daily_calories
 
 params_router = APIRouter(prefix="/params", tags=['Parameters'])
 
@@ -27,4 +23,5 @@ def post_params(params: Params, authorization: str = Header(...)):
     if Token.check_token(authorization):
         insert_params(find_user_id(Token.check_token(authorization)), params.weight_current, params.weight_future, params.height, params.sex,
                       params.age)
-        return {"message": "Декодирование токена успешно", "username": Token.check_token(authorization)}
+        result = calculate_daily_calories(params.age, params.height, params.weight_current, params.weight_future, params.sex)
+        return {"message": result, "username": Token.check_token(authorization)}
