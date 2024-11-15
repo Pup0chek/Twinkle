@@ -1,48 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>REGISTATION</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REGISTRATION</title>
+    <!-- Подключение стилей Bootstrap -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-     <p>
-        Введите имя: <br /> 
-        <input name="username" id="username" />
-    </p>
-     <p>
-        Введите пароль: <br /> 
-        <input name="userpassword" id="userpassword" />
-    </p>
-    <button onclick="send()">Зарегистрироваться</button>
-    <p>
-        Уже зарегистрирован? 
-    </p>
-    <a href="http://localhost:8000/login">Войти</a>
-<script>
-    async function send(){
- 
-        // получаем введеные в поля имя и возраст
-        const username = document.getElementById("username").value;
-        const userpassword = document.getElementById("userpassword").value;
- 
-        // отправляем запрос
-        const response = await fetch(`/registration?name=${username}&password=${userpassword}`, {
-                method: "POST",
-                headers: { "Accept": "application/json", "Content-Type": "application/json", },
-                body: JSON.stringify({ 
 
-                })
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h3>Регистрация</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="registration-form">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Введите имя</label>
+                                <input type="text" class="form-control" id="username" name="username" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="userpassword" class="form-label">Введите пароль</label>
+                                <input type="password" class="form-control" id="userpassword" name="userpassword" required />
+                            </div>
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-primary w-100" onclick="send()">Зарегистрироваться</button>
+                            </div>
+                        </form>
+                        <!-- Сообщение об ошибке -->
+                        <div id="message" class="text-danger text-center"></div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <p>Уже зарегистрированы? <a href="http://localhost:8000/login">Войти</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Скрипт для отправки данных -->
+    <script>
+        async function send() {
+            // Получаем введённые значения
+            const username = document.getElementById("username").value;
+            const userpassword = document.getElementById("userpassword").value;
+
+            // Отправляем запрос
+            const response = await fetch(`/registration?name=${username}&password=${userpassword}`, {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({})
             });
+
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem("access_token", data.access_token);
                 const access_token = localStorage.getItem("access_token");
-		        window.location.href = `/congrads?token=${encodeURIComponent(access_token)}`;
-            }
-            else
-                document.getElementById("message").textContent = "Ошибка";
+                window.location.href = `/congrads?token=${encodeURIComponent(access_token)}`;
+            } else {
+                // В случае ошибки выводим сообщение об ошибке
+                document.getElementById("message").textContent = "Ошибка при регистрации";
                 console.log(response);
-    }
-</script>
+            }
+        }
+    </script>
+
 </body>
 </html>

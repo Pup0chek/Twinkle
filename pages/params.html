@@ -1,35 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Let's get started!</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's get started!</title>
+    <!-- Подключение стилей Bootstrap -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <p>
-        Ваш текущий вес: <br />
-        <input type="number" id="weight_current" />
-    </p>
-    <p>
-        Желаемый вес: <br />
-        <input type="number" id="weight_future" />
-    </p>
-    <p>
-        Рост: <br />
-        <input type="number" id="height" />
-    </p>
-    <p>
-        Пол: <br />
-        <input type="text" id="sex" />
-    </p>
-    <p>
-        Возраст: <br />
-        <input type="number" id="age" />
-    </p>
-    <button id="calculateBtn">Рассчитать!</button>
-    <p id="message"></p>
-    <p>Основной обмен (BMR): <span id="bmr"></span></p>
-    <p>Ежедневные калории: <span id="daily_calories"></span></p>
-    <p>Целевые калории: <span id="target_calories"></span></p>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h3>Рассчитаем калории и обмен веществ</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="form">
+                            <div class="mb-3">
+                                <label for="weight_current" class="form-label">Ваш текущий вес (кг)</label>
+                                <input type="number" class="form-control" id="weight_current" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="weight_future" class="form-label">Желаемый вес (кг)</label>
+                                <input type="number" class="form-control" id="weight_future" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="height" class="form-label">Рост (см)</label>
+                                <input type="number" class="form-control" id="height" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="sex" class="form-label">Пол</label>
+                                <input type="text" class="form-control" id="sex" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="age" class="form-label">Возраст (лет)</label>
+                                <input type="number" class="form-control" id="age" />
+                            </div>
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-primary w-100" id="calculateBtn">Рассчитать!</button>
+                            </div>
+                        </form>
+
+                        <div id="message" class="text-center mb-3"></div>
+                        <div class="result">
+                            <p><strong>Основной обмен (BMR):</strong> <span id="bmr"></span></p>
+                            <p><strong>Ежедневные калории:</strong> <span id="daily_calories"></span></p>
+                            <p><strong>Целевые калории:</strong> <span id="target_calories"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключение Bootstrap JS -->
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
 
     <script>
         document.getElementById("calculateBtn").addEventListener("click", send);
@@ -85,5 +112,6 @@
             }
         }
     </script>
+
 </body>
 </html>

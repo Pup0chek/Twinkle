@@ -1,47 +1,69 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>LOGIN</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOGIN</title>
+    <!-- Подключение стилей Bootstrap -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-     <p>
-        Введите имя: <br />
-        <input name="username" id="username" />
-    </p>
-     <p>
-        Введите пароль: <br />
-        <input name="userpassword" id="userpassword" />
-    </p>
-    <button onclick="send()">Войти</button>
-<script>
-    async function send() {
-    // Получаем введённые значения
-    const username = document.getElementById("username").value;
-    const userpassword = document.getElementById("userpassword").value;
 
-    // Отправляем запрос
-    const response = await fetch(`/login?name=${username}&password=${userpassword}`, {
-        method: "POST",
-        headers: { "Accept": "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h3>Войти в систему</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="login-form">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Введите имя</label>
+                                <input type="text" class="form-control" id="username" name="username" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="userpassword" class="form-label">Введите пароль</label>
+                                <input type="password" class="form-control" id="userpassword" name="userpassword" required />
+                            </div>
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-primary w-100" onclick="send()">Войти</button>
+                            </div>
+                            <!-- Сообщение об ошибке -->
+                            <div id="message" class="text-danger text-center"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        })
-    });
+    <!-- Скрипт для отправки данных -->
+    <script>
+        async function send() {
+            // Получаем введённые значения
+            const username = document.getElementById("username").value;
+            const userpassword = document.getElementById("userpassword").value;
 
-    if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem("access_token", data.access_token);
-        const access_token = localStorage.getItem("access_token");
-        window.location.href = `/congrads?token=${encodeURIComponent(access_token)}`;
-    } else {
-        // В случае ошибки выводим сообщение в консоль и на страницу
-        document.getElementById("message").textContent = "Неверные имя пользователя или пароль";
-        console.log("Ошибка при входе:", response);
-    }
+            // Отправляем запрос
+            const response = await fetch(`/login?name=${username}&password=${userpassword}`, {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({})
+            });
 
-}
-</script>
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem("access_token", data.access_token);
+                const access_token = localStorage.getItem("access_token");
+                window.location.href = `/congrads?token=${encodeURIComponent(access_token)}`;
+            } else {
+                // В случае ошибки выводим сообщение в консоль и на страницу
+                document.getElementById("message").textContent = "Неверные имя пользователя или пароль";
+                console.log("Ошибка при входе:", response);
+            }
+        }
+    </script>
 
 </body>
 </html>

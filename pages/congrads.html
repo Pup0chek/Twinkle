@@ -1,57 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Congrads!</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congrads!</title>
+    <!-- Подключение стилей Bootstrap -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-     <p>
-        Поздравляю с регистрацией!
-    </p>
-     <button onclick="send1()">Составить план диеты</button>
-     <button onclick="send2()">Составить план тренировок</button>
-</body>
-<script>
-    async function sendRequest(endpoint) {
-    // Формируем запрос
-    const response = await fetch(`${endpoint}?token=${encodeURIComponent(localStorage.getItem("access_token"))}`, {
-        method: "GET",
-        headers: { "Accept": "application/json", "Content-Type": "application/json" },
-    });
 
-    // Проверяем, успешен ли ответ
-    if (response.ok) {
-        // Проверяем, является ли ответ JSON
-        if (response.headers.get("Content-Type")?.includes("application/json")) {
-            const data = await response.json();
-            // Сохраняем новый токен, если он присутствует в ответе
-            if (data.access_token) {
-                localStorage.setItem("access_token", data.access_token);
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h3>Поздравляю с регистрацией!</h3>
+                    </div>
+                    <div class="card-body text-center">
+                        <p>Вы успешно зарегистрировались. Теперь давайте начнем!</p>
+                        <button class="btn btn-primary w-100 mb-3" onclick="send1()">Составить план диеты</button>
+                        <button class="btn btn-success w-100" onclick="send2()">Составить план тренировок</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключение Bootstrap JS -->
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        async function sendRequest(endpoint) {
+            // Формируем запрос
+            const response = await fetch(`${endpoint}?token=${encodeURIComponent(localStorage.getItem("access_token"))}`, {
+                method: "GET",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+            });
+
+            // Проверяем, успешен ли ответ
+            if (response.ok) {
+                // Проверяем, является ли ответ JSON
+                if (response.headers.get("Content-Type")?.includes("application/json")) {
+                    const data = await response.json();
+                    // Сохраняем новый токен, если он присутствует в ответе
+                    if (data.access_token) {
+                        localStorage.setItem("access_token", data.access_token);
+                    }
+                    // Перенаправляем на страницу в зависимости от запроса
+                    if (endpoint === "/params/") {
+                        window.location.href = `/params?token=${encodeURIComponent(data.access_token || localStorage.getItem("access_token"))}`;
+                    } else if (endpoint === "/train") {
+                        window.location.href = `/train?token=${encodeURIComponent(data.access_token || localStorage.getItem("access_token"))}`;
+                    }
+                } else {
+                    // Если ответ не JSON, выполняем редирект с токеном из localStorage
+                    window.location.href = `${endpoint}?token=${encodeURIComponent(localStorage.getItem("access_token"))}`;
+                }
+            } else {
+                // Логируем ошибки в консоль
+                console.log(`Ошибка при запросе к ${endpoint}:`, response);
             }
-            // Перенаправляем на страницу в зависимости от запроса
-            if (endpoint === "/params/") {
-                window.location.href = `/params?token=${encodeURIComponent(data.access_token || localStorage.getItem("access_token"))}`;
-            } else if (endpoint === "/train") {
-                window.location.href = `/train?token=${encodeURIComponent(data.access_token || localStorage.getItem("access_token"))}`;
-            }
-        } else {
-            // Если ответ не JSON, выполняем редирект с токеном из localStorage
-            window.location.href = `${endpoint}?token=${encodeURIComponent(localStorage.getItem("access_token"))}`;
         }
-    } else {
-        // Логируем ошибки в консоль
-        console.log(`Ошибка при запросе к ${endpoint}:`, response);
-    }
-}
 
-// Функции send1 и send2, которые вызывают sendRequest с нужным endpoint
-function send1() {
-    sendRequest("/params/");
-}
+        // Функции send1 и send2, которые вызывают sendRequest с нужным endpoint
+        function send1() {
+            sendRequest("/params/");
+        }
 
-function send2() {
-    sendRequest("/train");
-}
+        function send2() {
+            sendRequest("/train");
+        }
+    </script>
 
-</script>
+</body>
 </html>

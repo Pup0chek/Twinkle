@@ -1,60 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Train</title>
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <select id="difficulty" name="difficulty">
-        <option value="Default">Default</option>
-        <option value="Начинающий">Начинающий</option>
-        <option value="Средний">Средний</option>
-        <option value="Профессионал">Профессионал</option>
-    </select>
-    <select id="muscle_groupp" name="muscle_groupp">
-        <option value="Default">Default</option>
-        <option value="Пресс">Пресс</option>
-        <option value="Трицепсы">Трицепсы</option>
-        <option value="Нижняя часть спины">Нижняя часть спины</option>
-        <option value="Плечи">Плечи</option>
-        <option value="Грудь">Грудь</option>
-        <option value="Квадрицепцы">Квадрицепцы</option>
-        <option value="Трапеции">Трапеции</option>
-        <option value="Бедра">Бедра</option>
-        <option value="Широчайшие мышцы спины">Широчайшие мышцы спины</option>
-        <option value="Средняя часть спины">Средняя часть спины</option>
-        <option value="Икры">Икры</option>
-        <option value="Ягодицы">Ягодицы</option>
-        <option value="Шея">Шея</option>
-        <option value="Предплечья">Предплечья</option>
-        <option value="Аддукторы">Аддукторы</option>
-    </select>
-    <select id="equipment" name="equipment">
-        <option value="Присутствует">Присутствует</option>
-        <option value="Отсутствует">Отсутствует</option>
-    </select>
-    <button id="calculateBtn">Рассчитать!</button>
-    <p id="message"></p>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <h1>Подходящие упражнения</h1>
-    {% if exercises %}
-        <ul>
-            {% for exercise in exercises %}
-                <li>
-                    <strong>id:</strong> {{ exercise.id }}<br>
-                    <strong>Название:</strong> {{ exercise.name }}<br>
-                    <strong>Описание:</strong> {{ exercise.description }}<br>
-                    <strong>Группа мышц:</strong> {{ exercise.muscle_group }}<br>
-                    <strong>Оборудование:</strong> {{ exercise.equipment }}<br>
-                    <strong>Сложность:</strong> {{ exercise.difficulty }}
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>Не найдено подходящих упражнений.</p>
-    {% endif %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h3>Выбор параметров тренировки</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Селекторы для сложности, группы мышц и наличия оборудования -->
+                        <div class="mb-3">
+                            <label for="difficulty" class="form-label">Сложность</label>
+                            <select id="difficulty" name="difficulty" class="form-select">
+                                <option value="Default">Default</option>
+                                <option value="Начинающий">Начинающий</option>
+                                <option value="Средний">Средний</option>
+                                <option value="Профессионал">Профессионал</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="muscle_groupp" class="form-label">Группа мышц</label>
+                            <select id="muscle_groupp" name="muscle_groupp" class="form-select">
+                                <option value="Default">Default</option>
+                                <option value="Пресс">Пресс</option>
+                                <option value="Трицепсы">Трицепсы</option>
+                                <option value="Нижняя часть спины">Нижняя часть спины</option>
+                                <option value="Плечи">Плечи</option>
+                                <option value="Грудь">Грудь</option>
+                                <option value="Квадрицепцы">Квадрицепцы</option>
+                                <option value="Трапеции">Трапеции</option>
+                                <option value="Бедра">Бедра</option>
+                                <option value="Широчайшие мышцы спины">Широчайшие мышцы спины</option>
+                                <option value="Средняя часть спины">Средняя часть спины</option>
+                                <option value="Икры">Икры</option>
+                                <option value="Ягодицы">Ягодицы</option>
+                                <option value="Шея">Шея</option>
+                                <option value="Предплечья">Предплечья</option>
+                                <option value="Аддукторы">Аддукторы</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="equipment" class="form-label">Оборудование</label>
+                            <select id="equipment" name="equipment" class="form-select">
+                                <option value="Присутствует">Присутствует</option>
+                                <option value="Отсутствует">Отсутствует</option>
+                            </select>
+                        </div>
+
+                        <!-- Кнопка для отправки данных -->
+                        <button id="calculateBtn" class="btn btn-primary w-100">Рассчитать!</button>
+
+                        <!-- Сообщение об ошибке или успехе -->
+                        <p id="message" class="text-center mt-3"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h1 class="mt-5 text-center">Подходящие упражнения</h1>
+
+        <!-- Список упражнений будет отображаться здесь -->
+        <div id="exercises-list">
+            <!-- Пример заполнения с серверной стороны -->
+            {% if exercises %}
+                <ul class="list-group">
+                    {% for exercise in exercises %}
+                        <li class="list-group-item">
+                            <strong>id:</strong> {{ exercise.id }}<br>
+                            <strong>Название:</strong> {{ exercise.name }}<br>
+                            <strong>Описание:</strong> {{ exercise.description }}<br>
+                            <strong>Группа мышц:</strong> {{ exercise.muscle_group }}<br>
+                            <strong>Оборудование:</strong> {{ exercise.equipment }}<br>
+                            <strong>Сложность:</strong> {{ exercise.difficulty }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-center">Не найдено подходящих упражнений.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Подключение Bootstrap JS -->
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+
     <script>
+        // Обработчик события для кнопки "Рассчитать!"
         document.getElementById("calculateBtn").addEventListener("click", send);
 
         async function send() {
@@ -69,6 +107,7 @@
                 console.log("Токен не найден в localStorage");
                 return;
             }
+
             try {
                 const response = await fetch(`/train`, {
                     method: "POST",
@@ -87,8 +126,6 @@
                 if (response.ok) {
                     const data = await response.json();
                     document.getElementById("message").textContent = "Данные успешно отправлены!";
-                    const access_token = localStorage.getItem("access_token");
-                    window.location.href = `/train?token=${access_token}`;
                 } else {
                     console.log("Ошибка при отправке:", response);
                     document.getElementById("message").textContent = "Ошибка при отправке данных.";
@@ -100,5 +137,4 @@
         }
     </script>
 </body>
-
 </html>
